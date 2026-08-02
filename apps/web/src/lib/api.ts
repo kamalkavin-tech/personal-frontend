@@ -60,7 +60,7 @@ async function refreshAccessToken(): Promise<string | null> {
       try {
         const res = await fetch(`${API_URL}/auth/refresh`, {
           method: 'POST',
-          credentials: 'include',
+          credentials: 'omit',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ refreshToken }),
         });
@@ -97,7 +97,7 @@ async function doFetch<T>(path: string, opts: RequestOptions): Promise<T> {
   const res = await fetch(`${API_URL}${path}`, {
     method: opts.method ?? 'GET',
     headers,
-    credentials: 'include',
+    credentials: 'omit',
     body: opts.formData ?? (opts.body !== undefined ? JSON.stringify(opts.body) : undefined),
     signal: opts.signal,
   });
