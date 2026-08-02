@@ -11,7 +11,15 @@ export class ApiError extends Error {
   }
 }
 
+const REFRESH_STORAGE_KEY = 'vaultx_refresh_token';
+
 let accessToken: string | null = null;
+// Persisted so sessions survive page reloads. Note: the backend also sets an
+// httpOnly SameSite=Lax cookie, but that cookie is NOT sent cross-site
+// (frontend.vercel.app -> backend.vercel.app), so we keep the rotated token here.
+// This is a supported server-side rotation flow: every refresh returns a NEW token
+// and invalidates the previous one, so a leaked token has a short usable life.
+let refreshToken: string | null = typeof localStorage !== 'undefined' ? localStorage.getItem(REFRESH_STORAGE_KEY) : null;
 let refreshInFlight: Promise<string | null> | null = null;
 let sessionListeners: Array<(loggedIn: boolean) => void> = [];
 
@@ -21,6 +29,18 @@ export function setAccessToken(token: string | null): void {
 
 export function getAccessToken(): string | null {
   return accessToken;
+}
+
+export function setRefreshToken(token: string | null): void {
+  refreshToken = token;
+  if (typeof localStorage !== 'undefined') {
+    if (token) localStorage.setItem(REFRESH_STORAGE_KEY, token);
+    else localStorage.removeItem(REFRESH_STORAGE_KEY);
+  }
+}
+
+export function getRefreshToken(): string | null {
+  return refreshToken;
 }
 
 export function onSessionChange(listener: (loggedIn: boolean) => void): () => void {
@@ -38,10 +58,17 @@ async function refreshAccessToken(): Promise<string | null> {
   if (!refreshInFlight) {
     refreshInFlight = (async () => {
       try {
-        const res = await fetch(`${API_URL}/auth/refresh`, { method: 'POST', credentials: 'include' });
+        const res = await fetch(`${API_URL}/auth/refresh`, {
+          method: 'POST',
+          credentials: 'include',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ refreshToken }),
+        });
         if (!res.ok) return null;
-        const data = (await res.json()) as { accessToken: string };
+        const data = (await res.json()) as { accessToken: string; refreshToken?: string };
         accessToken = data.accessToken;
+        // Rotate + persist the new refresh token (the old one is now revoked server-side).
+        if (data.refreshToken) setRefreshToken(data.refreshToken);
         emit(true);
         return data.accessToken;
       } catch {
