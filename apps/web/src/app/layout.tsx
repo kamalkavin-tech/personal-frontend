@@ -1,0 +1,18 @@
+import type { Metadata } from 'next';
+import './globals.css';
+import { Providers } from '@/components/providers';
+
+export const metadata: Metadata = {
+  title: 'VaultX — Zero-Trust Personal Vault',
+  description: 'An encrypted, zero-trust vault for passwords, notes, files, and secrets. Only you can access your data.',
+};
+
+export default function RootLayout({ children }: { children: React.ReactNode }) {
+  return (
+    <html lang="en" suppressHydrationWarning>
+      <body className="font-sans">
+        <Providers>{children}</Providers>
+      </body>
+    </html>
+  );
+}
