@@ -58,7 +58,32 @@
   }
 
   body {
-    @apply bg-background text-foreground antialiased;
+    @apply text-foreground antialiased;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    body,
+    .card-shell,
+    .card-shell * {
+      transition-property: background-color, border-color;
+      transition-duration: 300ms;
+    }
+  }
+}
+
+@layer components {
+  .text-gradient {
+    @apply bg-gradient-to-r from-foreground via-foreground/85 to-foreground/55 bg-clip-text text-transparent;
+  }
+
+  .glass {
+    @apply border bg-card/85 backdrop-blur-md;
+  }
+
+  .card-glow {
+    box-shadow:
+      0 1px 2px hsl(var(--foreground) / 0.06),
+      0 12px 32px -12px hsl(var(--primary) / 0.18);
   }
 }
 
@@ -72,5 +97,33 @@
   }
   .scrollbar-thin::-webkit-scrollbar-thumb {
     @apply bg-muted-foreground/25 rounded-full;
+  }
+  .animate-float {
+    animation: float 9s ease-in-out infinite;
+  }
+  .animate-pulse-ring {
+    animation: pulse-ring 2.4s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+}
+
+@keyframes float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-12px);
+  }
+}
+
+@keyframes pulse-ring {
+  0% {
+    box-shadow: 0 0 0 0 hsl(var(--primary) / 0.35);
+  }
+  70% {
+    box-shadow: 0 0 0 14px transparent;
+  }
+  100% {
+    box-shadow: 0 0 0 0 transparent;
   }
 }

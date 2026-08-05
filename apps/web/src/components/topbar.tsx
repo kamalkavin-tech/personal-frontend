@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useTheme } from 'next-themes';
+import { AnimatePresence, motion } from 'framer-motion';
 import { Bell, LogOut, Moon, PanelLeftClose, PanelLeftOpen, Search, ShieldCheck, Sun } from 'lucide-react';
 import { toast } from 'sonner';
 import { useAuth } from '@/context/auth-context';
@@ -49,20 +50,38 @@ export function Topbar({ collapsed, onToggle, onSearch }: { collapsed: boolean; 
       </div>
 
       <div className="ml-auto flex items-center gap-1">
-        <Button variant="ghost" size="icon" onClick={() => router.push('/security')} className="relative">
+        <Button variant="ghost" size="icon" onClick={() => router.push('/security')} className="relative transition-transform hover:scale-105">
           <ShieldCheck className="h-4 w-4" />
         </Button>
-        <Button variant="ghost" size="icon" onClick={() => router.push('/backup')}>
+        <Button variant="ghost" size="icon" onClick={() => router.push('/backup')} className="relative transition-transform hover:scale-105">
           <Bell className="h-4 w-4" />
-          {unread > 0 && <span className="absolute right-1 top-1 h-2 w-2 rounded-full bg-destructive" />}
+          {unread > 0 && (
+            <motion.span
+              className="absolute right-1 top-1 h-2 w-2 rounded-full bg-destructive"
+              animate={{ scale: [1, 1.5, 1] }}
+              transition={{ duration: 1.6, repeat: Infinity, ease: 'easeInOut' }}
+            />
+          )}
         </Button>
-        <Button
-          variant="ghost"
-          size="icon"
+        <motion.button
+          whileHover={{ scale: 1.1, rotate: 12 }}
+          whileTap={{ scale: 0.85 }}
           onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+          className="inline-flex h-9 w-9 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+          aria-label="Toggle theme"
         >
-          {theme === 'dark' ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
-        </Button>
+          <AnimatePresence mode="wait" initial={false}>
+            <motion.span
+              key={theme === 'dark' ? 'sun' : 'moon'}
+              initial={{ rotate: -90, opacity: 0, scale: 0.5 }}
+              animate={{ rotate: 0, opacity: 1, scale: 1 }}
+              exit={{ rotate: 90, opacity: 0, scale: 0.5 }}
+              transition={{ duration: 0.25 }}
+            >
+              {theme === 'dark' ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+            </motion.span>
+          </AnimatePresence>
+        </motion.button>
 
         <DropdownMenu>
           <DropdownMenuTrigger asChild>

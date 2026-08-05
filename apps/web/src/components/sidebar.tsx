@@ -52,9 +52,9 @@ export function Sidebar({ collapsed }: { collapsed: boolean }) {
           <Link
             href={href}
             className={cn(
-              'group relative flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors',
+              'group relative flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-all duration-200 hover:translate-x-0.5',
               active ? 'bg-primary/10 text-primary' : 'text-muted-foreground hover:bg-accent hover:text-foreground',
-              collapsed && 'justify-center px-2',
+              collapsed && 'justify-center px-2 hover:translate-x-0',
               bottom && 'mt-auto',
             )}
           >

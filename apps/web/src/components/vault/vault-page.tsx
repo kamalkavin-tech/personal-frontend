@@ -31,6 +31,9 @@ interface Props {
 
 type View = 'all' | 'favorites' | 'archived';
 
+const listVariants = { hidden: {}, show: { transition: { staggerChildren: 0.04 } } };
+const itemVariants = { hidden: { opacity: 0, y: 14, scale: 0.98 }, show: { opacity: 1, y: 0, scale: 1 } };
+
 export function VaultPage({ type, title, description }: Props) {
   const { dek } = useAuth();
   const { query } = useSearch();
@@ -87,7 +90,7 @@ export function VaultPage({ type, title, description }: Props) {
         <div className="flex items-center gap-3">
           <TypeIcon type={type} />
           <div>
-            <h1 className="text-xl font-bold tracking-tight">{title}</h1>
+            <h1 className="text-gradient text-xl font-bold tracking-tight">{title}</h1>
             {description && <p className="text-sm text-muted-foreground">{description}</p>}
           </div>
         </div>
@@ -156,9 +159,9 @@ export function VaultPage({ type, title, description }: Props) {
           </CardContent>
         </Card>
       ) : (
-        <motion.div layout className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <motion.div layout variants={listVariants} initial="hidden" animate="show" className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {filtered.map((entry) => (
-            <motion.div key={entry._id} layout initial={{ opacity: 0, scale: 0.97 }} animate={{ opacity: 1, scale: 1 }}>
+            <motion.div key={entry._id} layout variants={itemVariants}>
               <div onClick={() => setDetail({ entry, payload: payloads[entry._id] ?? { title: titles[entry._id] ?? '', fields: {}, tags: [] } })} className="cursor-pointer">
                 <EntryCard
                   entry={entry}

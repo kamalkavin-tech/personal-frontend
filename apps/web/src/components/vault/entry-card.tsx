@@ -9,6 +9,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { TypeIcon } from '@/components/vault/type-icon';
+import { TiltCard } from '@/components/ui/tilt-card';
 import { timeAgo } from '@/lib/utils';
 import { VaultItemPayload } from '@/lib/vault';
 
@@ -43,8 +44,9 @@ export function EntryCard({ entry, title, subtitle, payload, dek, onEdit, onTogg
   };
 
   return (
-    <Card className="group relative transition-shadow hover:shadow-md">
-      <CardContent className="p-4">
+    <TiltCard className="group h-full" intensity={6}>
+      <Card className="relative h-full transition-shadow hover:shadow-[0_10px_36px_-12px_hsl(var(--primary)/0.35)]">
+        <CardContent className="p-4">
         <div className="flex items-start gap-3">
           <TypeIcon type={entry.type as VaultType} />
           <div className="min-w-0 flex-1">
@@ -100,6 +102,7 @@ export function EntryCard({ entry, title, subtitle, payload, dek, onEdit, onTogg
         </div>
         {void isDark}
       </CardContent>
-    </Card>
+      </Card>
+    </TiltCard>
   );
 }
