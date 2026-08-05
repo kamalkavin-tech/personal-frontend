@@ -10,6 +10,7 @@ export const VAULT_TYPE_META: Record<VaultType, { label: string; icon: string; s
   secret: { label: 'Secrets', icon: 'secret', singular: 'Secret' },
   journal: { label: 'Journal', icon: 'journal', singular: 'Journal entry' },
   address: { label: 'Addresses', icon: 'address', singular: 'Address' },
+  contact: { label: 'Contacts', icon: 'contact', singular: 'Contact' },
 };
 
 export const DEFAULT_ITERATIONS = 600_000;
