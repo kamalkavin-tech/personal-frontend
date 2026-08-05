@@ -5,6 +5,9 @@ import { Providers } from '@/components/providers';
 export const metadata: Metadata = {
   title: 'VaultX — Zero-Trust Personal Vault',
   description: 'An encrypted, zero-trust vault for passwords, notes, files, and secrets. Only you can access your data.',
+  icons: {
+    icon: '/favicon.ico',
+  },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

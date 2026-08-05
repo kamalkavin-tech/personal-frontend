@@ -2,7 +2,7 @@
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, ReactNode } from 'react';
 import type { User } from '@vaultx/shared';
-import { api, setAccessToken } from '@/lib/api';
+import { api, setAccessToken, setRefreshToken } from '@/lib/api';
 import {
   deriveKeys,
   unwrapDEK,
@@ -86,7 +86,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     async (email: string, masterPassword: string, rememberDevice = false): Promise<LoginResult> => {
       const prepared = await api.post<{ kekSalt: string; authSalt: string; iterations: number; twoFactorEnabled: boolean }>('/auth/prepare', { email });
       const { kek, authKeyHex } = await deriveKeys(masterPassword, prepared.kekSalt, prepared.authSalt, prepared.iterations);
-      const result = await api.post<{ accessToken?: string; user?: User; requiresTwoFactor: boolean; pendingEmail?: string }>('/auth/login', {
+      const result = await api.post<{ accessToken?: string; refreshToken?: string; user?: User; requiresTwoFactor: boolean; pendingEmail?: string }>('/auth/login', {
         email,
         authKey: authKeyHex,
         rememberDevice,
@@ -102,6 +102,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
       if (!result.accessToken || !result.user) throw new Error('Unexpected login response');
       setAccessToken(result.accessToken);
+      if (result.refreshToken) setRefreshToken(result.refreshToken);
       setUser(result.user);
       const rawDEK = await unwrapDEK(result.user.wrappedDEK, kek);
       setDek(await importDEK(rawDEK));
@@ -117,7 +118,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (!password) throw new Error('Please enter your master password first');
       const prepared = await api.post<{ kekSalt: string; authSalt: string; iterations: number }>('/auth/prepare', { email });
       const { kek, authKeyHex } = await deriveKeys(password, prepared.kekSalt, prepared.authSalt, prepared.iterations);
-      const result = await api.post<{ accessToken: string; user: User }>('/auth/verify-2fa', {
+      const result = await api.post<{ accessToken: string; refreshToken?: string; user: User }>('/auth/verify-2fa', {
         email,
         authKey: authKeyHex,
         twoFactorCode: code,
@@ -127,6 +128,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         platform: detectPlatform(),
       });
       setAccessToken(result.accessToken);
+      if (result.refreshToken) setRefreshToken(result.refreshToken);
       setUser(result.user);
       const rawDEK = await unwrapDEK(result.user.wrappedDEK, kek);
       setDek(await importDEK(rawDEK));
@@ -142,7 +144,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const { kek, authKeyHex } = await deriveKeys(data.masterPassword, kekSalt, authSalt, DEFAULT_ITERATIONS);
       const dekRaw = await generateDEK();
       const wrapped: EncBlob = await wrapDEK(dekRaw, kek);
-      const result = await api.post<{ accessToken: string; user: User }>('/auth/register', {
+      const result = await api.post<{ accessToken: string; refreshToken?: string; user: User }>('/auth/register', {
         email: data.email,
         name: data.name,
         kekSalt,
@@ -155,6 +157,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         platform: detectPlatform(),
       });
       setAccessToken(result.accessToken);
+      if (result.refreshToken) setRefreshToken(result.refreshToken);
       setUser(result.user);
       setDek(await importDEK(dekRaw));
       setStatus('authed');
@@ -198,6 +201,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       /* ignore */
     }
     setAccessToken(null);
+    setRefreshToken(null);
     setUser(null);
     setDek(null);
     masterPasswordRef.current = null;
