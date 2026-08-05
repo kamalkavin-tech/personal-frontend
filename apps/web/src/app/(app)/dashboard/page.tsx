@@ -220,7 +220,6 @@ function typeRoute(type: VaultType): string {
     secret: 'secrets',
     journal: 'journal',
     address: 'addresses',
-    contact: 'contacts',
   };
   return map[type] ?? 'passwords';
 }
